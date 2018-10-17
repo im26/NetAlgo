@@ -205,11 +205,11 @@ unlock:
     // Populate the session setup structure for the operation required
     // TODO #1: please fillup the following properties in sessionSetupData
     // for AES-256-ECB encrypt/decrypt operation:
-    //sessionSetupData.sessionPriority =
-    //sessionSetupData.symOperation =
-    //sessionSetupData.cipherSetupData.cipherAlgorithm =
-    //sessionSetupData.cipherSetupData.pCipherKey =
-    //sessionSetupData.cipherSetupData.cipherKeyLenInBytes =
+    sessionSetupData.sessionPriority = CPA_CY_PRIORITY_NORMAL;
+    sessionSetupData.symOperation = CPA_CY_SYM_OP_CIPHER;
+    sessionSetupData.cipherSetupData.cipherAlgorithm =CPA_CY_SYM_CIPHER_AES_256_ECB; 
+    sessionSetupData.cipherSetupData.pCipherKey = sampleCipherKey;
+    sessionSetupData.cipherSetupData.cipherKeyLenInBytes = sizeof(sampleCipherKey);
     sessionSetupData.cipherSetupData.cipherDirection =
         isEnc ? CPA_CY_SYM_CIPHER_DIRECTION_ENCRYPT : CPA_CY_SYM_CIPHER_DIRECTION_DECRYPT;
     RT_PRINT_DBG("@sessionSetupData.cipherSetupData.cipherKeyLenInBytes = %ld\n", sizeof(sampleCipherKey));
