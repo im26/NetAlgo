@@ -207,7 +207,7 @@ unlock:
     // for AES-256-ECB encrypt/decrypt operation:
     sessionSetupData.sessionPriority = CPA_CY_PRIORITY_NORMAL;
     sessionSetupData.symOperation = CPA_CY_SYM_OP_CIPHER;
-    sessionSetupData.cipherSetupData.cipherAlgorithm =CPA_CY_SYM_CIPHER_AES_256_ECB; 
+    sessionSetupData.cipherSetupData.cipherAlgorithm =CPA_CY_SYM_CIPHER_AES_ECB; 
     sessionSetupData.cipherSetupData.pCipherKey = sampleCipherKey;
     sessionSetupData.cipherSetupData.cipherKeyLenInBytes = sizeof(sampleCipherKey);
     sessionSetupData.cipherSetupData.cipherDirection =
