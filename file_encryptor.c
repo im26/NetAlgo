@@ -320,7 +320,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
     COMPLETION_DESTROY(&complete);
 
 
-    return rc;
+    return status;
 }
 
 // It's thread-safety.
