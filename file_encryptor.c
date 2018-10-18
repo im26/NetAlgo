@@ -153,7 +153,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
     CpaBufferList *pBufferList = NULL;
     CpaFlatBuffer *pFlatBuffer = NULL;
     CpaCySymOpData *pOpData = NULL;
-    Cpa32U bufferSize = sizeof(sampleCipherSrc);
+    Cpa32U bufferSize = sizeof(src);
     Cpa32U numBuffers = 1; /* only using 1 buffer in this case */
     /* allocate memory for bufferlist and array of flat buffers in a contiguous
      * area and carve it up to reduce number of memory allocations required. */
@@ -199,17 +199,17 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
 
     if (CPA_STATUS_SUCCESS == status)
     {
-        status = PHYS_CONTIG_ALLOC(&pIvBuffer, sizeof(sampleCipherIv));
+        status = PHYS_CONTIG_ALLOC(&pIvBuffer, sizeof(dst));
     }
     //</snippet>
 
     if (CPA_STATUS_SUCCESS == status)
     {
         /* copy source into buffer */
-        memcpy(pSrcBuffer, sampleCipherSrc, sizeof(sampleCipherSrc));
+        memcpy(pSrcBuffer, src, sizeof(src));
 
         /* copy IV into buffer */
-        memcpy(pIvBuffer, sampleCipherIv, sizeof(sampleCipherIv));
+        memcpy(pIvBuffer, dst, sizeof(dst));
 
         /* increment by sizeof(CpaBufferList) to get at the
          * array of flatbuffers */
@@ -241,9 +241,9 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
         pOpData->sessionCtx = sessionCtx;
         pOpData->packetType = CPA_CY_SYM_PACKET_TYPE_FULL;
         pOpData->pIv = pIvBuffer;
-        pOpData->ivLenInBytes = sizeof(sampleCipherIv);
+        pOpData->ivLenInBytes = sizeof(dst);
         pOpData->cryptoStartSrcOffsetInBytes = 0;
-        pOpData->messageLenToCipherInBytes = sizeof(sampleCipherSrc);
+        pOpData->messageLenToCipherInBytes = sizeof(src);
         //</snippet>
     }
 
