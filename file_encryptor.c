@@ -289,21 +289,6 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
             //</snippet>
         }
 
-        /*
-         * We now check that the output matches the expected output.
-         */
-        if (CPA_STATUS_SUCCESS == status)
-        {
-            if (0 == memcmp(pSrcBuffer, expectedOutput, bufferSize))
-            {
-                PRINT_DBG("Output matches expected output\n");
-            }
-            else
-            {
-                PRINT_DBG("Output does not match expected output\n");
-                status = CPA_STATUS_FAIL;
-            }
-        }
     }
 
     /*
