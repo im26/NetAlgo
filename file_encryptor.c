@@ -432,7 +432,7 @@ CpaStatus qatAes256EcbEnc(char *src, unsigned int srcLen, char *dst,
 
     qatAes256EcbSessionFree(sess);
 
-    return status;
+    return rc;
 }
 
 // Thread entrypoint.
