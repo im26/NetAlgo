@@ -57,8 +57,8 @@ typedef struct {
 } QatAes256EcbSession;
 
 typedef struct RunTime_ {
-    struct timeval timeS;
-    struct timeval timeE;
+    struct timeval timeS;//time start 
+    struct timeval timeE;//time end
     struct RunTime_ *next;
 } RunTime;
 
@@ -82,7 +82,7 @@ static Cpa8U sampleCipherKey[] = {
 static RunTime *gRunTimeHead = NULL;
 static pthread_mutex_t gMutex = PTHREAD_MUTEX_INITIALIZER;
 
-void runTimePush(RunTime *pNode)
+void runTimePush(RunTime *pNode)//push into a stack
 {
     pthread_mutex_lock(&gMutex);
     pNode->next = gRunTimeHead;
@@ -168,6 +168,8 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
     struct COMPLETION_STRUCT complete;
 
     PRINT_DBG("cpaCyBufferListGetMetaSize\n");
+    
+    
 
     /*
      * Different implementations of the API require different
