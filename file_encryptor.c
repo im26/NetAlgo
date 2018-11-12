@@ -201,10 +201,10 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
     if (CPA_STATUS_SUCCESS == rc)
     {
         /* copy source into buffer */
-        memcpy(pSrcBuffer, src, sizeof(src));
+        memcpy(pSrcBuffer, src, srclen*sizeof(src));
 
         /* copy IV into buffer */
-        memcpy(pDstBuffer, dst, sizeof(dst));
+        memcpy(pDstBuffer, dst, dstlen*sizeof(dst));
 
         /* increment by sizeof(CpaBufferList) to get at the
          * array of flatbuffers */
