@@ -236,7 +236,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
         pOpData->sessionCtx = sessionCtx;
         pOpData->packetType = CPA_CY_SYM_PACKET_TYPE_FULL;
         pOpData->pIv = pDstBuffer;
-        pOpData->ivLenInBytes = sizeof(Dst);
+        pOpData->ivLenInBytes = sizeof(dst);
         pOpData->cryptoStartSrcOffsetInBytes = 0;
         pOpData->messageLenToCipherInBytes = sizeof(src);
         //</snippet>
@@ -266,7 +266,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
 
         if (CPA_STATUS_SUCCESS != rc)
         {
-            PRINT_ERR("cpaCySymPerformOp failed. (status = %d)\n", status);
+            PRINT_ERR("cpaCySymPerformOp failed. (status = %d)\n", rc);
         }
 
         /*
