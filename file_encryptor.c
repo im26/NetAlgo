@@ -279,7 +279,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
             if (!COMPLETION_WAIT(&complete, TIMEOUT_MS))
             {
                 PRINT_ERR("timeout or interruption in cpaCySymPerformOp\n");
-                status = CPA_STATUS_FAIL;
+                rc = CPA_STATUS_FAIL;
             }
             //</snippet>
         }
