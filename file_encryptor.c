@@ -162,7 +162,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
      * used then these variables should be dynamically allocated */
     struct COMPLETION_STRUCT complete;
 
-    PRINT_DBG("%s\n","cpaCyBufferListGetMetaSize");
+    RT_PRINT_DBG("%s\n","cpaCyBufferListGetMetaSize");
 
     /*
      * Different implementations of the API require different
@@ -250,7 +250,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
      */
     if (CPA_STATUS_SUCCESS == rc)
     {
-        PRINT_DBG("\n","cpaCySymPerformOp");
+        RT_PRINT_DBG("%s\n","cpaCySymPerformOp");
 
         //<snippet name="perfOp">
         COMPLETION_INIT(&complete);
