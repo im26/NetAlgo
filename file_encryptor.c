@@ -201,7 +201,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
     if (CPA_STATUS_SUCCESS == rc)
     {
         /* copy source into buffer */
-        memcpy(pSrcBuffer, src,sizeof(sampleCipherKey) ));
+        memcpy(pSrcBuffer, src,sizeof(sampleCipherKey));
 
         /* copy IV into buffer */
         memcpy(pDstBuffer, dst, sizeof(sampleCipherKey));
