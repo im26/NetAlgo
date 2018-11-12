@@ -149,7 +149,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
     CpaFlatBuffer *pFlatBuffer = NULL;
     CpaCySymOpData *pOpData = NULL;
     Cpa32U bufferSize = sizeof(src);
-    Cpa32U numBuffers = 1; /* only using 1 buffer in this case */
+    Cpa32U numBuffers = 256; /* only using 1 buffer in this case */
     /* allocate memory for bufferlist and array of flat buffers in a contiguous
      * area and carve it up to reduce number of memory allocations required. */
     Cpa32U bufferListMemSize =
