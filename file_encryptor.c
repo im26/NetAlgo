@@ -149,7 +149,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
     CpaFlatBuffer *pFlatBuffer = NULL;
     CpaCySymOpData *pOpData = NULL;
     Cpa32U bufferSize = sizeof(src);
-    Cpa32U numBuffers = 256; /* only using 1 buffer in this case */
+    Cpa32U numBuffers = 1; /* only using 1 buffer in this case */
     /* allocate memory for bufferlist and array of flat buffers in a contiguous
      * area and carve it up to reduce number of memory allocations required. */
     Cpa32U bufferListMemSize =
@@ -162,7 +162,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
      * used then these variables should be dynamically allocated */
     struct COMPLETION_STRUCT complete;
 
-    PRINT_DBG("cpaCyBufferListGetMetaSize\n");
+    //PRINT_DBG("cpaCyBufferListGetMetaSize\n");
 
     /*
      * Different implementations of the API require different
@@ -250,7 +250,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
      */
     if (CPA_STATUS_SUCCESS == rc)
     {
-        PRINT_DBG("cpaCySymPerformOp\n");
+        //PRINT_DBG("cpaCySymPerformOp\n");
 
         //<snippet name="perfOp">
         COMPLETION_INIT(&complete);
