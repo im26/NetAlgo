@@ -92,7 +92,7 @@ typedef pthread_t sampleThread;
 #define PRINT_DBG(args...)                                                     \
     do                                                                         \
     {                                                                          \
-        if (TRUE == gDebugParam)                                               \
+        if (TRUE == 1)                                               \
         {                                                                      \
             printf("%s(): ", __func__);                                        \
             printf(args);                                                      \
