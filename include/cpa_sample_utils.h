@@ -162,7 +162,7 @@ typedef struct task_struct *sampleThread;
 #define PRINT_DBG(args...)                                                     \
     do                                                                         \
     {                                                                          \
-        if (TRUE == gDebugParam)                                               \
+        if (TRUE == 1)                                               \
         {                                                                      \
             printk("%s(): ", __func__);                                        \
             printk(args);                                                      \
