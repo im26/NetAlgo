@@ -153,8 +153,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
     Cpa32U bufferMetaSize = 0;
     CpaBufferList *pBufferListDst = NULL;
     CpaBufferList *pBufferListSrc = NULL;
-    CpaFlatBuffer *pFlatBufferSrc = NULL;
-    CpaFlatBuffer *pFlatBufferDst = NULL;
+    CpaFlatBuffer *pFlatBuffer = NULL;
     CpaCySymOpData *pOpData = NULL;
     Cpa32U bufferSize = srcLen;
     Cpa32U numBuffers = 1; /* only using 1 buffer in this case */
@@ -232,23 +231,23 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
 
         /* increment by sizeof(CpaBufferList) to get at the
          * array of flatbuffers */
-        pFlatBufferSrc = (CpaFlatBuffer *)(pBufferListSrc + 1);
+        pFlatBuffer = (CpaFlatBuffer *)(pBufferListSrc + 1);
 
         pBufferListSrc->pBuffers = pFlatBuffer;
         pBufferListSrc->numBuffers = 1;
         pBufferListSrc->pPrivateMetaData = pBufferMetaSrc;
 
-        pFlatBufferSrc->dataLenInBytes = bufferSize;
-        pFlatBufferSrc->pData = pSrcBuffer;
+        pFlatBuffer->dataLenInBytes = bufferSize;
+        pFlatBuffer->pData = pSrcBuffer;
         
-        pFlatBufferDst = (CpaFlatBuffer *)(pBufferListDst + 1);
+        pFlatBuffer = (CpaFlatBuffer *)(pBufferListDst + 1);
 
         pBufferListDst->pBuffers = pFlatBuffer;
         pBufferListDst->numBuffers = 1;
         pBufferListDst->pPrivateMetaData = pBufferMetaDst;
 
-        pFlatBufferDst->dataLenInBytes = bufferSize;
-        pFlatBufferDst->pData = pDstBuffer;
+        pFlatBuffer->dataLenInBytes = bufferSize;
+        pFlatBuffer->pData = pDstBuffer;
 
         rc = OS_MALLOC(&pOpData, sizeof(CpaCySymOpData));
     }
