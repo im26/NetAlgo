@@ -232,7 +232,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
 
         /* increment by sizeof(CpaBufferList) to get at the
          * array of flatbuffers */
-        pFlatBuffer = (CpaFlatBuffer *)(pBufferListSrc + 1);
+        pFlatBufferSrc = (CpaFlatBuffer *)(pBufferListSrc + 1);
 
         pBufferListSrc->pBuffers = pFlatBuffer;
         pBufferListSrc->numBuffers = 1;
@@ -241,7 +241,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
         pFlatBufferSrc->dataLenInBytes = bufferSize;
         pFlatBufferSrc->pData = pSrcBuffer;
         
-        pFlatBuffer = (CpaFlatBuffer *)(pBufferListDst + 1);
+        pFlatBufferDst = (CpaFlatBuffer *)(pBufferListDst + 1);
 
         pBufferListDst->pBuffers = pFlatBuffer;
         pBufferListDst->numBuffers = 1;
