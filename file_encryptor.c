@@ -148,10 +148,10 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
                                  char *dst, unsigned int dstLen)
 {
     CpaStatus rc = CPA_STATUS_SUCCESS;
-    Cpa8U *pBufferMetaDst = NULL;
+    //Cpa8U *pBufferMetaDst = NULL;
     Cpa8U *pBufferMetaSrc = NULL;
     Cpa32U bufferMetaSize = 0;
-    CpaBufferList *pBufferListDst = NULL;
+    //CpaBufferList *pBufferListDst = NULL;
     CpaBufferList *pBufferListSrc = NULL;
     CpaFlatBuffer *pFlatBuffer = NULL;
     CpaCySymOpData *pOpData = NULL;
@@ -162,7 +162,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
     Cpa32U bufferListMemSize =
         sizeof(CpaBufferList) + (numBuffers * sizeof(CpaFlatBuffer));
     Cpa8U *pSrcBuffer = NULL;
-    Cpa8U *pDstBuffer = NULL;
+    //Cpa8U *pDstBuffer = NULL;
     Cpa8U *pIvBuffer = NULL;
 
     /* The following variables are allocated on the stack because we block
@@ -200,7 +200,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
         rc = PHYS_CONTIG_ALLOC(&pSrcBuffer, bufferSize);
     }
     
-     if (CPA_STATUS_SUCCESS == rc)
+     /*if (CPA_STATUS_SUCCESS == rc)
     {
         rc = PHYS_CONTIG_ALLOC(&pBufferMetaDst, bufferMetaSize);
     }
@@ -213,7 +213,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
     if (CPA_STATUS_SUCCESS == rc)
     {
         rc = PHYS_CONTIG_ALLOC(&pDstBuffer, bufferSize);
-    }
+    }*/
 
     if (CPA_STATUS_SUCCESS == rc)
     {
@@ -240,14 +240,14 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
         pFlatBuffer->dataLenInBytes = bufferSize;
         pFlatBuffer->pData = pSrcBuffer;
         
-        pFlatBuffer = (CpaFlatBuffer *)(pBufferListDst + 1);
+        /*pFlatBuffer = (CpaFlatBuffer *)(pBufferListDst + 1);
 
         pBufferListDst->pBuffers = pFlatBuffer;
         pBufferListDst->numBuffers = 1;
         pBufferListDst->pPrivateMetaData = pBufferMetaDst;
 
         pFlatBuffer->dataLenInBytes = bufferSize;
-        pFlatBuffer->pData = pDstBuffer;
+        pFlatBuffer->pData = pDstBuffer;*/
 
         rc = OS_MALLOC(&pOpData, sizeof(CpaCySymOpData));
     }
@@ -292,7 +292,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
             (void *)&complete, /* data sent as is to the callback function*/
             pOpData,           /* operational data struct */
             pBufferListSrc,       /* source buffer list */
-            pBufferListDst,       /* same src & dst for an in-place operation*/
+            pBufferListSrc,       /* same src & dst for an in-place operation*/
             NULL);
         //</snippet>
 
@@ -323,12 +323,12 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
      * memory!
      */
     PHYS_CONTIG_FREE(pSrcBuffer);
-    PHYS_CONTIG_FREE(pDstBuffer);
+    //PHYS_CONTIG_FREE(pDstBuffer);
     PHYS_CONTIG_FREE(pIvBuffer);
     OS_FREE(pBufferListSrc);
     PHYS_CONTIG_FREE(pBufferMetaSrc);
-    OS_FREE(pBufferListDst);
-    PHYS_CONTIG_FREE(pBufferMetaDst);
+    //OS_FREE(pBufferListDst);
+    //PHYS_CONTIG_FREE(pBufferMetaDst);
     OS_FREE(pOpData);
 
     COMPLETION_DESTROY(&complete);
