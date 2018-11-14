@@ -153,7 +153,8 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
     Cpa32U bufferMetaSize = 0;
     CpaBufferList *pBufferListDst = NULL;
     CpaBufferList *pBufferListSrc = NULL;
-    CpaFlatBuffer *pFlatBuffer = NULL;
+    CpaFlatBuffer *pFlatBufferSrc = NULL;
+    CpaFlatBuffer *pFlatBufferDst = NULL;
     CpaCySymOpData *pOpData = NULL;
     Cpa32U bufferSize = srcLen;
     Cpa32U numBuffers = 1; /* only using 1 buffer in this case */
