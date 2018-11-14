@@ -18,6 +18,8 @@
 #include "icp_sal_user.h"
 #include "rt_utils.h"
 
+extern int gDebugParam;
+
 #define TIMEOUT_MS  5000    // 5 seconds
 #define MAX_PATH    1024
 // Function qatMemAllocNUMA can only allocate a contiguous memory with size up
@@ -70,6 +72,9 @@ static QatHardware gQatHardware = {
 static CmdlineArgs gCmdlineArgs = {
     .isEnc = 1,
     .nrThread = 1};
+    
+static Cpa8U sampleCipherIv[] =
+    {0x7E, 0x9B, 0x4C, 0x1D, 0x82, 0x4A, 0xC5, 0xDF};
 
 // 256 bits-long
 static Cpa8U sampleCipherKey[] = {
@@ -143,9 +148,11 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
                                  char *dst, unsigned int dstLen)
 {
     CpaStatus rc = CPA_STATUS_SUCCESS;
-    Cpa8U *pBufferMeta = NULL;
+    Cpa8U *pBufferMetaDst = NULL;
+    Cpa8U *pBufferMetaSrc = NULL;
     Cpa32U bufferMetaSize = 0;
-    CpaBufferList *pBufferList = NULL;
+    CpaBufferList *pBufferListDst = NULL;
+    CpaBufferList *pBufferListSrc = NULL;
     CpaFlatBuffer *pFlatBuffer = NULL;
     CpaCySymOpData *pOpData = NULL;
     Cpa32U bufferSize = srcLen;
@@ -156,6 +163,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
         sizeof(CpaBufferList) + (numBuffers * sizeof(CpaFlatBuffer));
     Cpa8U *pSrcBuffer = NULL;
     Cpa8U *pDstBuffer = NULL;
+    Cpa8U *pIvBuffer = NULL;
 
     /* The following variables are allocated on the stack because we block
      * until the callback comes back. If a non-blocking approach was to be
@@ -179,22 +187,37 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
 
     if (CPA_STATUS_SUCCESS == rc)
     {
-        rc = PHYS_CONTIG_ALLOC(&pBufferMeta, bufferMetaSize);
+        rc = PHYS_CONTIG_ALLOC(&pBufferMetaSrc, bufferMetaSize);
     }
 
     if (CPA_STATUS_SUCCESS == rc)
     {
-        rc = OS_MALLOC(&pBufferList, bufferListMemSize);
+        rc = OS_MALLOC(&pBufferListSrc, bufferListMemSize);
     }
 
     if (CPA_STATUS_SUCCESS == rc)
     {
         rc = PHYS_CONTIG_ALLOC(&pSrcBuffer, bufferSize);
     }
+    
+     if (CPA_STATUS_SUCCESS == rc)
+    {
+        rc = PHYS_CONTIG_ALLOC(&pBufferMetaDst, bufferMetaSize);
+    }
 
     if (CPA_STATUS_SUCCESS == rc)
     {
-        rc = PHYS_CONTIG_ALLOC(&pDstBuffer, dstLen);
+        rc = OS_MALLOC(&pBufferListDst, bufferListMemSize);
+    }
+
+    if (CPA_STATUS_SUCCESS == rc)
+    {
+        rc = PHYS_CONTIG_ALLOC(&pDstBuffer, bufferSize);
+    }
+
+    if (CPA_STATUS_SUCCESS == rc)
+    {
+        rc = PHYS_CONTIG_ALLOC(&pIvBuffer, sizeof(sampleCipherIv));
     }
     //</snippet>
 
@@ -204,18 +227,27 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
         memcpy(pSrcBuffer, src,srcLen);
 
         /* copy IV into buffer */
-        memcpy(pDstBuffer, dst, dstLen);
+        memcpy(pIvBuffer, sampleCipherIv, sizeof(sampleCipherIv));
 
         /* increment by sizeof(CpaBufferList) to get at the
          * array of flatbuffers */
-        pFlatBuffer = (CpaFlatBuffer *)(pBufferList + 1);
+        pFlatBuffer = (CpaFlatBuffer *)(pBufferListSrc + 1);
 
-        pBufferList->pBuffers = pFlatBuffer;
-        pBufferList->numBuffers = 1;
-        pBufferList->pPrivateMetaData = pBufferMeta;
+        pBufferListSrc->pBuffers = pFlatBuffer;
+        pBufferListSrc->numBuffers = 1;
+        pBufferListSrc->pPrivateMetaData = pBufferMetaSrc;
 
-        pFlatBuffer->dataLenInBytes = bufferSize;
-        pFlatBuffer->pData = pSrcBuffer;
+        pFlatBufferSrc->dataLenInBytes = bufferSize;
+        pFlatBufferSrc->pData = pSrcBuffer;
+        
+        pFlatBuffer = (CpaFlatBuffer *)(pBufferListDst + 1);
+
+        pBufferListDst->pBuffers = pFlatBuffer;
+        pBufferListDst->numBuffers = 1;
+        pBufferListDst->pPrivateMetaData = pBufferMetaDst;
+
+        pFlatBufferDst->dataLenInBytes = bufferSize;
+        pFlatBufferDst->pData = pDstBuffer;
 
         rc = OS_MALLOC(&pOpData, sizeof(CpaCySymOpData));
     }
@@ -235,8 +267,8 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
         //<snippet name="opData">
         pOpData->sessionCtx = sessionCtx;
         pOpData->packetType = CPA_CY_SYM_PACKET_TYPE_FULL;
-        pOpData->pIv = pDstBuffer;
-        pOpData->ivLenInBytes = dstLen;
+        pOpData->pIv = pIvBuffer;
+        pOpData->ivLenInBytes = sizeof(sampleCipherIv);
         pOpData->cryptoStartSrcOffsetInBytes = 0;
         pOpData->messageLenToCipherInBytes = srcLen;
         //</snippet>
@@ -259,8 +291,8 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
             cyInstHandle,
             (void *)&complete, /* data sent as is to the callback function*/
             pOpData,           /* operational data struct */
-            pBufferList,       /* source buffer list */
-            pBufferList,       /* same src & dst for an in-place operation*/
+            pBufferListSrc,       /* source buffer list */
+            pBufferListDst,       /* same src & dst for an in-place operation*/
             NULL);
         //</snippet>
 
@@ -292,8 +324,11 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
      */
     PHYS_CONTIG_FREE(pSrcBuffer);
     PHYS_CONTIG_FREE(pDstBuffer);
-    OS_FREE(pBufferList);
-    PHYS_CONTIG_FREE(pBufferMeta);
+    PHYS_CONTIG_FREE(pIvBuffer);
+    OS_FREE(pBufferListSrc);
+    PHYS_CONTIG_FREE(pBufferMetaSrc);
+    OS_FREE(pBufferListDst);
+    PHYS_CONTIG_FREE(pBufferMetaDst);
     OS_FREE(pOpData);
 
     COMPLETION_DESTROY(&complete);
