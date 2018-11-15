@@ -143,9 +143,6 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
 {
     
     CpaStatus status = CPA_STATUS_SUCCESS;
-    
-    //CpaStatus status = CPA_STATUS_SUCCESS;
-    
     // TODO #2: This function performs a cipher operation and is critical to encryption's
     // performance. Please implement it as efficient as possible. Your can refer
     // to ./cpa_cipher_sample.c.
@@ -155,40 +152,17 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
     CpaFlatBuffer *pFlatBuffer = NULL;
     CpaCySymOpData *pOpData = NULL;
     Cpa32U bufferSize = MAX_HW_BUFSZ;
-    //RT_PRINT("bufferSize: %d\n", bufferSize);
     Cpa32U numBuffers = srcLen / bufferSize;
-    //RT_PRINT("numBuffers: %d\n", numBuffers);
-    /* allocate memory for bufferlist and array of flat buffers in a contiguous
-     * area and carve it up to reduce number of memory allocations required. */
     Cpa32U bufferListMemSize =
     sizeof(CpaBufferList) + (numBuffers * sizeof(CpaFlatBuffer));
     Cpa8U *pSrcBuffer = NULL;
     //Cpa8U *pIvBuffer = NULL;
     
-    int i;
-    for(i=0;i<numBuffers;i++){
-        /* The following variables are allocated on the stack because we block
-         * until the callback comes back. If a non-blocking approach was to be
-         * used then these variables should be dynamically allocated */
-        struct COMPLETION_STRUCT complete;
-        
-        //RT_PRINT_DBG("cpaCyBufferListGetMetaSize\n");
-        
-        /*
-         * Different implementations of the API require different
-         * amounts of space to store meta-data associated with buffer
-         * lists.  We query the API to find out how much space the current
-         * implementation needs, and then allocate space for the buffer
-         * meta data, the buffer list, and for the buffer itself.  We also
-         * allocate memory for the initialization vector.  We then
-         * populate this memory with the required data.
-         */
-        //<snippet name="memAlloc">
+     
         status =
         cpaCyBufferListGetMetaSize(cyInstHandle, numBuffers, &bufferMetaSize);
         CHECK(status);
-        //RT_PRINT("cpaCyBufferListGetMetaSize -- OK.\n");
-        
+
         if (CPA_STATUS_SUCCESS == status)
         {
             status = PHYS_CONTIG_ALLOC(&pBufferMeta, bufferMetaSize);
@@ -201,37 +175,26 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
             status = OS_MALLOC(&pBufferList, bufferListMemSize);
         }
         CHECK(status);
-              
+    
+    int i;
+    for(i=0;i<numBuffers;i++){
+       
+        struct COMPLETION_STRUCT complete;
+        
         if (CPA_STATUS_SUCCESS == status)
         {
             status = PHYS_CONTIG_ALLOC(&pSrcBuffer, bufferSize);
         }
-        // FIXMEDONE : resource unavailable
-        // Change bufferSize to MAX_HW_BUFSZ
         CHECK(status);
-        
-        /*if (CPA_STATUS_SUCCESS == status)
-         {
-         status = PHYS_CONTIG_ALLOC(&pIvBuffer, sizeof(sampleCipherIv));
-         }*/
-        //</snippet>
-        
+
         if (CPA_STATUS_SUCCESS == status)
         {
-            /* copy source into buffer */
             memcpy(pSrcBuffer, src, bufferSize);
-            printf("here");
             src += bufferSize; 
-            
-            /* copy IV into buffer */
-            //memcpy(pIvBuffer, sampleCipherIv, sizeof(sampleCipherIv));
-            
-            /* increment by sizeof(CpaBufferList) to get at the
-             * array of flatbuffers */
-            //if(i==0){
+            if(i==0){
 				pFlatBuffer = (CpaFlatBuffer *)(pBufferList + 1);
-			//}
-			//else pFlatBuffer += bufferSize;
+			}
+			else pFlatBuffer += bufferSize;
             
             pBufferList->pBuffers = pFlatBuffer;
             pBufferList->numBuffers = 1;
@@ -245,38 +208,17 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
         CHECK(status);
         if (CPA_STATUS_SUCCESS == status)
         {
-            /*
-             * Populate the structure containing the operational data needed
-             * to run the algorithm:
-             * - packet type information (the algorithm can operate on a full
-             *   packet, perform a partial operation and maintain the state or
-             *   complete the last part of a multi-part operation)
-             * - the initialization vector and its length
-             * - the offset in the source buffer
-             * - the length of the source message
-             */
-            //<snippet name="opData">
             pOpData->sessionCtx = sessionCtx;
             pOpData->packetType = CPA_CY_SYM_PACKET_TYPE_FULL;
             //pOpData->pIv = pIvBuffer;
             //pOpData->ivLenInBytes = sizeof(sampleCipherIv);
             pOpData->cryptoStartSrcOffsetInBytes = i*MAX_HW_BUFSZ;
             pOpData->messageLenToCipherInBytes = MAX_HW_BUFSZ;
-            //</snippet>
         }
         
-        /*
-         * Now, we initialize the completion variable which is used by the callback
-         * function
-         * to indicate that the operation is complete.  We then perform the
-         * operation.
-         */
         CHECK(status);
         if (CPA_STATUS_SUCCESS == status)
         {
-            //RT_PRINT("cpaCySymPerformOp\n");
-            
-            //<snippet name="perfOp">
             COMPLETION_INIT(&complete);
             
             status = cpaCySymPerformOp(
@@ -286,17 +228,12 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
                                        pBufferList,       /* source buffer list */
                                        pBufferList,       /* same src & dst for an in-place operation*/
                                        NULL);
-            //</snippet>
             
             if (CPA_STATUS_SUCCESS != status)
             {
                 PRINT_ERR("cpaCySymPerformOp failed. (status = %d)\n", status);
             }
-            
-            /*
-             * We now wait until the completion of the operation.  This uses a macro
-             * which can be defined differently for different OSes.
-             */
+ 
             if (CPA_STATUS_SUCCESS == status)
             {
                 //<snippet name="completion">
@@ -305,7 +242,6 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
                     PRINT_ERR("timeout or interruption in cpaCySymPerformOp\n");
                     status = CPA_STATUS_FAIL;
                 }
-                //</snippet>
             }
         }
         
