@@ -219,7 +219,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
         {
             /* copy source into buffer */
             memcpy(pSrcBuffer, src, bufferSize);
-            src +=buffersize; 
+            src += bufferSize; 
             
             /* copy IV into buffer */
             //memcpy(pIvBuffer, sampleCipherIv, sizeof(sampleCipherIv));
@@ -229,7 +229,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
             if(i==0){
 				pFlatBuffer = (CpaFlatBuffer *)(pBufferList + 1);
 			}
-			else pFlatBuffer += buffersize;
+			else pFlatBuffer += bufferSize;
             
             pBufferList->pBuffers = pFlatBuffer;
             pBufferList->numBuffers = 1;
