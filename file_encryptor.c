@@ -228,10 +228,10 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
             
             /* increment by sizeof(CpaBufferList) to get at the
              * array of flatbuffers */
-            if(i==0){
+            //if(i==0){
 				pFlatBuffer = (CpaFlatBuffer *)(pBufferList + 1);
-			}
-			else pFlatBuffer += bufferSize;
+			//}
+			//else pFlatBuffer += bufferSize;
             
             pBufferList->pBuffers = pFlatBuffer;
             pBufferList->numBuffers = 1;
