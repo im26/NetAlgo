@@ -165,8 +165,14 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
     Cpa8U *pSrcBuffer = NULL;
     //Cpa8U *pIvBuffer = NULL;
     
+    if (CPA_STATUS_SUCCESS == status)
+        {
+            status = OS_MALLOC(&pBufferList, bufferListMemSize);
+        }
+        CHECK(status);
+    
     int i;
-    for(i=0;i<=numBuffers;i++){
+    for(i=0;i<numBuffers;i++){
         /* The following variables are allocated on the stack because we block
          * until the callback comes back. If a non-blocking approach was to be
          * used then these variables should be dynamically allocated */
@@ -194,12 +200,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
             status = PHYS_CONTIG_ALLOC(&pBufferMeta, bufferMetaSize);
         }
         CHECK(status);
-        if (CPA_STATUS_SUCCESS == status)
-        {
-            status = OS_MALLOC(&pBufferList, bufferListMemSize);
-        }
-        CHECK(status);
-        
+              
         if (CPA_STATUS_SUCCESS == status)
         {
             status = PHYS_CONTIG_ALLOC(&pSrcBuffer, bufferSize);
@@ -218,13 +219,17 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
         {
             /* copy source into buffer */
             memcpy(pSrcBuffer, src, bufferSize);
+            src +=buffersize; 
             
             /* copy IV into buffer */
             //memcpy(pIvBuffer, sampleCipherIv, sizeof(sampleCipherIv));
             
             /* increment by sizeof(CpaBufferList) to get at the
              * array of flatbuffers */
-            pFlatBuffer = (CpaFlatBuffer *)(pBufferList + 1);
+            if(i==0){
+				pFlatBuffer = (CpaFlatBuffer *)(pBufferList + 1);
+			}
+			else pFlatBuffer += buffersize;
             
             pBufferList->pBuffers = pFlatBuffer;
             pBufferList->numBuffers = 1;
