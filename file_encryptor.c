@@ -166,7 +166,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
     //Cpa8U *pIvBuffer = NULL;
     
     int i;
-    for(i=0;i<numBuffers;i++){
+    for(i=0;i<=numBuffers;i++){
         /* The following variables are allocated on the stack because we block
          * until the callback comes back. If a non-blocking approach was to be
          * used then these variables should be dynamically allocated */
