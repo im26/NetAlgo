@@ -219,6 +219,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
         {
             /* copy source into buffer */
             memcpy(pSrcBuffer, src, bufferSize);
+            printf("here");
             src += bufferSize; 
             
             /* copy IV into buffer */
