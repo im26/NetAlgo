@@ -191,10 +191,10 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
         {
             memcpy(pSrcBuffer, src, bufferSize);
             src += bufferSize; 
-            if(i==0){
+            //if(i==0){
 				pFlatBuffer = (CpaFlatBuffer *)(pBufferList + 1);
-			}
-			else pFlatBuffer += bufferSize;
+			//}
+			//else pFlatBuffer += bufferSize;
             
             pBufferList->pBuffers = pFlatBuffer;
             pBufferList->numBuffers = 1;
