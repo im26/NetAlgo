@@ -165,12 +165,6 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
     Cpa8U *pSrcBuffer = NULL;
     //Cpa8U *pIvBuffer = NULL;
     
-    if (CPA_STATUS_SUCCESS == status)
-        {
-            status = OS_MALLOC(&pBufferList, bufferListMemSize);
-        }
-        CHECK(status);
-    
     int i;
     for(i=0;i<numBuffers;i++){
         /* The following variables are allocated on the stack because we block
@@ -200,6 +194,13 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
             status = PHYS_CONTIG_ALLOC(&pBufferMeta, bufferMetaSize);
         }
         CHECK(status);
+        
+           
+    	if (CPA_STATUS_SUCCESS == status)
+        {
+            status = OS_MALLOC(&pBufferList, bufferListMemSize);
+        }
+        CHECK(status);
               
         if (CPA_STATUS_SUCCESS == status)
         {
@@ -219,6 +220,8 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
         {
             /* copy source into buffer */
             memcpy(pSrcBuffer, src, bufferSize);
+            printf("here");
+            src += bufferSize; 
             
             /* copy IV into buffer */
             //memcpy(pIvBuffer, sampleCipherIv, sizeof(sampleCipherIv));
