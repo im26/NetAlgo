@@ -116,24 +116,30 @@ lcore_main(void)
 	printf("\nCore %u forwarding packets. [Ctrl+C to quit]\n",
 		rte_lcore_id());
 
+	char Receive[45];
+	struct ether_hdr etHdr;
+	struct ipv4_hdr ipHdr;
+	struct udp_hdr udpHdr;
+
 	/* Run until the application is quit or killed. */
 	/*运行 直到 应用程序 推出 或 被kill*/
-	for (;;) {
-		/*
-		* Receive packets on a port and forward them on the paired
-		* port. The mapping is 0 -> 1, 1 -> 0, 2 -> 3, 3 -> 2, etc.
-		*/
-		for (port = 0; port < nb_ports; port++) {       //遍历所有网口
-
+	for (;;){
+		port=1;
 														/* Get burst of RX packets, from first port of pair. */
 			struct rte_mbuf *bufs[BURST_SIZE];
 
 			//收包，接收到nb_tx个包
 			//端口，队列，收包队列，队列大小
-			const uint16_t nb_rx = rte_eth_rx_burst(port, 0,
+			const uint16_t nb_rx = rte_eth_rx_burst(1, 0,
 				bufs, BURST_SIZE);
-			}
-		}
+
+			memcpy(&Receive[45],bufs+sizeof(etHdr)+sizeof(ipHdr)+sizeof(udpHdr),sizeof(Message));
+			if(strcmp(Receive,Message)==0)
+				printf("Pass");
+			else printf("Error");
+
+			rte_pktmbuf_free(bufs[1]);
+
 	}
 }
 
