@@ -109,7 +109,7 @@ getPacketInfo(struct rte_mbuf * m){
                      "udp_datagram=%s\n",
              ether_d_addr.addr_bytes[0], ether_d_addr.addr_bytes[1], ether_d_addr.addr_bytes[2], ether_d_addr.addr_bytes[3], ether_d_addr.addr_bytes[4], ether_d_addr.addr_bytes[5],
              ether_s_addr.addr_bytes[0], ether_s_addr.addr_bytes[1], ether_s_addr.addr_bytes[2], ether_s_addr.addr_bytes[3], ether_s_addr.addr_bytes[4], ether_s_addr.addr_bytes[5],
-             ip_src[0], ip_src[1], ip_src[2], ip_src[3],
+             ip_src[0],ip_src[1], ip_src[2], ip_src[3],
              ip_dst[0], ip_dst[1], ip_dst[2], ip_dst[3],
              udp_header->src_port,udp_header->dst_port,
              actual_content
@@ -118,12 +118,16 @@ getPacketInfo(struct rte_mbuf * m){
     return string;
 }
 //构建一个网络包
-static inline int
-createUDP(char *buf, uint8_t port_id){
-    char content[]="This is a UDP packet!"; //包内容
-    //udp_pkt->ol_flags |= PKT_TX_UDP_CKSUM | PKT_TX_IPV4 | PKT_TX_IP_CKSUM ;
+static struct rte_mbuf *
+createUDP(struct rte_mempool *mp, uint8_t port_id){
+    char content[]="This is really a UDP packet!"; //包内容
+    struct rte_mbuf *udp_pkt = rte_pktmbuf_alloc(mp);
+    udp_pkt->ol_flags |= PKT_TX_UDP_CKSUM | PKT_TX_IPV4 | PKT_TX_IP_CKSUM ;
+    //udp_pkt->data_len = 1000;
+    //rte_pktmbuf_trim(udp_pkt,udp_pkt->buf_len)
+    rte_pktmbuf_append(udp_pkt,sizeof(struct ether_hdr)+sizeof(struct ipv4_hdr)+sizeof(struct udp_hdr)+sizeof(content)) ;
 
-    struct ether_hdr *ether_header = (struct ether_hdr *) buf;
+    struct ether_hdr *ether_header = (struct ether_hdr *)rte_pktmbuf_mtod(udp_pkt,struct ether_hdr*);
     struct ipv4_hdr *ipv4_header = (struct ipv4_hdr *) &ether_header[1];
     struct udp_hdr *udp_header = (struct udp_hdr *) &ipv4_header[1];
     char *actual_content = (char *) &udp_header[1];
@@ -134,19 +138,19 @@ createUDP(char *buf, uint8_t port_id){
 
     ipv4_header->version_ihl = IP_VHL_DEF;
     ipv4_header->type_of_service = 0;
-    ipv4_header->total_length = rte_cpu_to_be_16(1000 - sizeof(struct ether_hdr));
+    ipv4_header->total_length = rte_cpu_to_be_16(udp_pkt->data_len - sizeof(struct ether_hdr));
     ipv4_header->packet_id = 0;
     ipv4_header->fragment_offset = IP_DN_FRAGMENT_FLAG;
     ipv4_header->time_to_live = IP_DEFTTL;
     ipv4_header->next_proto_id = IPPROTO_UDP;
     ipv4_header->hdr_checksum = 0;
-    ipv4_header->src_addr = rte_cpu_to_be_16(IPv4(192,168,1,5));
-    ipv4_header->dst_addr = rte_cpu_to_be_16(IPv4(192,168,1,2));
+    ipv4_header->src_addr = htons(IPv4(192,168,1,106));
+    ipv4_header->dst_addr = htons(IPv4(192,168,1,106));
 
     udp_header->dgram_cksum = 0;
     udp_header->dgram_len = sizeof(content);
-    udp_header->src_port = rte_cpu_to_be_16((uint16_t)9999);
-    udp_header->dst_port = rte_cpu_to_be_16((uint16_t)8888);
+    udp_header->src_port = htons((uint16_t)1234);
+    udp_header->dst_port = htons((uint16_t)1234);
 
     for(int i=0;i<sizeof(content);i++){
         actual_content[i] = content[i];
@@ -155,7 +159,7 @@ createUDP(char *buf, uint8_t port_id){
     udp_header->dgram_cksum = rte_ipv4_udptcp_cksum(ipv4_header,udp_header);
     ipv4_header->hdr_checksum = rte_ipv4_cksum(ipv4_header);
 
-    return 0;
+    return udp_pkt;
 
 }
 
@@ -182,17 +186,13 @@ lcore_main(struct rte_mempool *mbuf_pool)
 
     /* Run until the application is quit or killed. */
     while (sent_udp < 10) {
-	    struct rte_mbuf *constructed_udp_pkt = rte_pktmbuf_alloc(mbuf_pool);
-            uint8_t port = 0;
-            createUDP(rte_pktmbuf_mtod(constructed_udp_pkt,void *), port);
-		constructed_udp_pkt->nb_segs=1;
-		constructed_udp_pkt->next=NULL;
-		constructed_udp_pkt->pkt_len=1;
+	    uint8_t port = 0;
+	    struct rte_mbuf *constructed_udp_pkt = createUDP(mbuf_pool, port);
             uint16_t nb_tx = rte_eth_tx_burst(port,0,&constructed_udp_pkt,1);
-	    printf("sent_udp=%d\n",sent_udp);
-            if(nb_tx == 1) printf("sent the %uth udp packet at port %u\n",sent_udp,port);
+            if(nb_tx == 1) printf("sent the %uth udp packet at port %u\n",++sent_udp,port);
+            char * packet_string = getPacketInfo(constructed_udp_pkt);
+                    printf("%s\n",packet_string);
             rte_pktmbuf_free(constructed_udp_pkt);
-            sent_udp++;
             if (sent_udp > 50) {break;}
         
             
