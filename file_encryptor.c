@@ -187,7 +187,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
         status =
         cpaCyBufferListGetMetaSize(cyInstHandle, numBuffers, &bufferMetaSize);
         CHECK(status);
-        RT_PRINT("cpaCyBufferListGetMetaSize -- OK.\n");
+        //RT_PRINT("cpaCyBufferListGetMetaSize -- OK.\n");
         
         if (CPA_STATUS_SUCCESS == status)
         {
@@ -202,7 +202,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
         
         if (CPA_STATUS_SUCCESS == status)
         {
-            status = PHYS_CONTIG_ALLOC(&pSrcBuffer, bufferSize);
+            status = PHYS_CONTIG_ALLOC(&pSrcBuffer, MAX_HW_BUFSZ);
         }
         // FIXMEDONE : resource unavailable
         // Change bufferSize to MAX_HW_BUFSZ
@@ -267,7 +267,7 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
         CHECK(status);
         if (CPA_STATUS_SUCCESS == status)
         {
-            RT_PRINT("cpaCySymPerformOp\n");
+            //RT_PRINT("cpaCySymPerformOp\n");
             
             //<snippet name="perfOp">
             COMPLETION_INIT(&complete);
@@ -416,7 +416,6 @@ CpaStatus qatAes256EcbEnc(char *src, unsigned int srcLen, char *dst,
     
     // Acquire a QAT_CY instance & initialize a QAT_CY_SYM_AES_256_ECB session
     qatAes256EcbSessionInit(sess, isEnc);
-    RT_PRINT("here\n");
     
     // Perform Cipher operation (sync / async / batch, etc.)
     rc = cipherPerformOp(sess->cyInstHandle, sess->ctx, src, srcLen, dst, dstLen);
