@@ -253,8 +253,8 @@ static CpaStatus cipherPerformOp(CpaInstanceHandle cyInstHandle,
             pOpData->packetType = CPA_CY_SYM_PACKET_TYPE_FULL;
             //pOpData->pIv = pIvBuffer;
             //pOpData->ivLenInBytes = sizeof(sampleCipherIv);
-            pOpData->cryptoStartSrcOffsetInBytes = i*MAX_HW_BUFSZ;
-            pOpData->messageLenToCipherInBytes = MAX_HW_BUFSZ;
+            pOpData->cryptoStartSrcOffsetInBytes = i*MAX_HW_BUFSZ/1024;
+            pOpData->messageLenToCipherInBytes = MAX_HW_BUFSZ/1024;
             //</snippet>
         }
         
